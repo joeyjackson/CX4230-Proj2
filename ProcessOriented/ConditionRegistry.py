@@ -3,13 +3,14 @@ from threading import Thread, Lock, Condition
 
 class WaitCondition:
     def __init__(self, thread):
+        # print("created")
         self.thread = thread
 
     def check(self):
         self.thread.cv.acquire()
         self.thread.cv.notify()
         self.thread.cv.release()
-        print("checked")
+        # print("checked")
         return True
 
 

@@ -12,8 +12,9 @@ if __name__ == '__main__':
     TrafficLight(seq11, rd).start()
 
     advance_time(EnterRoadEvent(rd, 0), 42)
-    # advance_time(EnterRoadEvent(rd, 1), 0)
-    # advance_time(EnterRoadEvent(rd, 0), 20)
+    advance_time(EnterRoadEvent(rd, 1), 0)
+    advance_time(EnterRoadEvent(rd, 0), 20)
+    advance_time(EnterRoadEvent(rd, 0), 142)
 
     # TrafficLight(seq11, None).start()
     # TrafficLight(seq12, None).start()

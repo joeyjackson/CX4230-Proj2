@@ -2,7 +2,7 @@ class Event:
     def __gt__(self, evt):
         return False
 
-    def execute(self):
+    def handle(self):
         pass
 
     def message(self, ts):
@@ -15,24 +15,24 @@ class EnterRoadEvent(Event):
         self.lane = lane
         self.v = None
 
-    def execute(self):
+    def handle(self):
         from Vehicle import Vehicle
         self.v = Vehicle(self.road, self.lane)
         self.v.start()
 
     def message(self, ts):
-        print(round(ts, 2), "\t", self.v, "entered road ", self.road, " in lane ", self.lane)
+        print(round(ts, 2), "\t", self.v, "entered road", self.road, "in lane", self.lane)
 
 
 class LightChangeEvent(Event):
     def __init__(self, traffic_light):
         self.traffic_light = traffic_light
 
-    def execute(self):
+    def handle(self):
         self.traffic_light.change()
 
     def message(self, ts):
-        print(round(ts, 2), "\t", self.traffic_light, " changed to ", self.traffic_light.light())
+        print(round(ts, 2), "\t", self.traffic_light, "changed to", self.traffic_light.light())
 
 
 class MoveThroughIntersectionEvent(Event):
@@ -40,7 +40,7 @@ class MoveThroughIntersectionEvent(Event):
         self.vehicle = vehicle
         self.v = None
 
-    def execute(self):
+    def handle(self):
         self.vehicle.cv.acquire()
         self.v = self.vehicle.road.exit(self.vehicle.lane)
         self.vehicle.reached_destination = True
@@ -48,5 +48,18 @@ class MoveThroughIntersectionEvent(Event):
         self.vehicle.cv.release()
 
     def message(self, ts):
-        print(round(ts, 2), "\t", self.v, " has exited lane ", self.v.lane, " from road ", self.vehicle.road)
+        print(round(ts, 2), "\t", self.v, "has exited lane", self.v.lane, "from road", self.vehicle.road)
+
+
+class MoveEvent(Event):
+    def __init__(self, vehicle):
+        self.vehicle = vehicle
+
+    def handle(self):
+        self.vehicle.cv.acquire()
+        self.vehicle.cv.notify()
+        self.vehicle.cv.release()
+
+    def message(self, ts):
+        print(round(ts, 2), "\t", self.vehicle, "has moved down road", self.vehicle.road)
 

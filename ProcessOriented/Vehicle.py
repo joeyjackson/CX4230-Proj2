@@ -8,9 +8,9 @@ from ConditionRegistry import *
 
 class Vehicle(Thread):
     def __init__(self, road, lane=0):
-        super().__init__()
+        super().__init__(daemon=True)
         self.speed = random.randint(15, 20) * 0.44704  # Feet per second
-        self.destination = None
+        self.destination = 50
         self.cv = Condition()
         self.road = road
         self.lane = lane
@@ -20,11 +20,12 @@ class Vehicle(Thread):
     def run(self):
         self.cv.acquire()
         while not self.reached_destination:
-            while self.road.traffic_light.light() != LightState.GREEN:
-                wait_until(WaitCondition(self))
+            advance_time(MoveEvent(self), self.road.lanes[self.lane].length / self.speed)
+            self.cv.wait()
+
+            wait_until(LightGreenCondition(self, self.road.traffic_light))
 
             advance_time(MoveThroughIntersectionEvent(self), 0)
-                         # self.road.lanes[self.lane].length / self.speed)
             self.cv.wait()
             # if traffic,
             #   enter traffic queue

@@ -1,17 +1,30 @@
 from threading import Thread, Lock, Condition
+from Constants import *
 
 
 class WaitCondition:
     def __init__(self, thread):
-        # print("created")
         self.thread = thread
 
     def check(self):
         self.thread.cv.acquire()
         self.thread.cv.notify()
         self.thread.cv.release()
-        # print("checked")
         return True
+
+
+class LightGreenCondition(WaitCondition):
+    def __init__(self, thread, light):
+        super().__init__(thread)
+        self.traffic_light = light
+
+    def check(self):
+        self.thread.cv.acquire()
+        satisfied = self.traffic_light.light() == LightState.GREEN
+        if satisfied:
+            self.thread.cv.notify()
+        self.thread.cv.release()
+        return satisfied
 
 
 class Registry:

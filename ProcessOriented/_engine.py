@@ -134,14 +134,18 @@ class Process(Thread):
 
     def run(self):
         self.cv.acquire()
-        while True:
-            advance_time(self, 0)
-            advance_time(self, 1)
+
+        schedule_future_event(StartProcessEvent(Process()), 40)
+
+        self.finish()
 
     def resume(self):
         self.cv.acquire()
         self.cv.notify()
         self.cv.release()
+
+    def finish(self):
+        resume_scheduler()
 
 
 # *************************************************

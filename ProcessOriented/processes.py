@@ -1,17 +1,45 @@
-from threading import Thread, Condition
+from engine import *
+from events import *
+from conditions import *
+from constants import *
 import random
-from Constants import *
-from Engine import *
-from Events import *
-from ConditionRegistry import *
 
 
-class Vehicle(Thread):
+# *************************************************
+#   TRAFFIC LIGHT
+# *************************************************
+class TrafficLight(Process):
+    def __init__(self, sequence):
+        super().__init__()
+        self.sequence = sequence
+        self.state = 0
+
+    def light(self):
+        self.cv.acquire()
+        l = self.sequence[self.state][0]
+        self.cv.release()
+        return l
+
+    def run(self):
+        self.cv.acquire()
+
+        while True:
+            color, duration = self.sequence[self.state]
+            print(fel.current_time, '\t', color)
+            advance_time(self, duration)
+            self.state = (self.state + 1) % len(self.sequence)
+
+        # self.finish()
+
+
+# *************************************************
+#   VEHICLE
+# *************************************************
+class Vehicle(Process):
     def __init__(self, road, lane=0):
-        super().__init__(daemon=True)
+        super().__init__()
         self.speed = random.randint(15, 20) * 0.44704  # Feet per second
         self.destination = 50
-        self.cv = Condition()
         self.road = road
         self.lane = lane
         self.road.enter(self, lane)
@@ -20,13 +48,10 @@ class Vehicle(Thread):
     def run(self):
         self.cv.acquire()
         while not self.reached_destination:
-            advance_time(MoveEvent(self), self.road.lanes[self.lane].length / self.speed)
-            self.cv.wait()
 
-            wait_until(LightGreenCondition(self, self.road.traffic_light))
+            advance_time(self, self.road.lanes[self.lane].length / self.speed)
+            wait_until(LightIsColorCondition(self, self.road.traffic_light, [LightState.GREEN]))
 
-            advance_time(MoveThroughIntersectionEvent(self), 0)
-            self.cv.wait()
             # if traffic,
             #   enter traffic queue
             #   waitUntil(traffic continue)
@@ -35,9 +60,10 @@ class Vehicle(Thread):
             #   if light is red
             #      waitUntil(traffic continue)
 
-            # self.reached_destination = True
+            self.reached_destination = True
+            print(fel.current_time, '\t', "Through Intersection")
 
-        self.cv.release()
+        self.finish()
         """
         Enter Road Segment (List/Queue) if space
             Enter Back Moving Queue
@@ -66,3 +92,4 @@ class Vehicle(Thread):
                 WaitUntil(Light changes to green)
         """
         pass
+

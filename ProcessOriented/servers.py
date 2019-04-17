@@ -1,20 +1,25 @@
 from threading import Lock
 
 
+# *************************************************
+#   ROAD
+# *************************************************
+
+
 class Lane:
     def __init__(self, length):
         self.length = length
         self.light_q = []
-        self.traffic_q_pos = 0
-        self.traffic_q = []
+        # self.traffic_q_pos = 0
+        # self.traffic_q = []
 
 
 class RoadSegment:
-    def __init__(self, lanes, lt_lane):
+    def __init__(self, lanes, lt_lane, traffic_light):
         self.lock = Lock()
         self.left_turn_lane = lt_lane
         self.lanes = lanes
-        self.traffic_light = None
+        self.traffic_light = traffic_light
 
     def enter(self, vehicle, lane=0):
         self.lock.acquire()

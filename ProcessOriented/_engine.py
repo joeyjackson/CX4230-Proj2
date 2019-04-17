@@ -18,6 +18,20 @@ class Event:
         print("", end="")
 
 
+class LinkedResumeEvent(Event):
+    def __init__(self, process, condition):
+        self.p = process
+        self.condition = condition
+
+    def handle(self):
+        reg.remove(self.condition)
+        self.p.resume()
+        scv.wait()
+
+    def message(self, ts):
+        print("Process Resumed", ts)
+
+
 class StartProcessEvent(Event):
     def __init__(self, process):
         self.p = process
@@ -65,6 +79,7 @@ class FutureEventList:
         for i, (ts, e) in enumerate(self.pq):
             if e == evt:
                 self.pq.pop(i)
+                heapq.heapify(self.pq)
                 self.lock.release()
                 return
         self.lock.release()
@@ -90,6 +105,30 @@ class WaitCondition:
         return True
 
 
+# class CountCondition(WaitCondition):
+#     def __init__(self, thread, count):
+#         super().__init__(thread)
+#         self.count = count
+#         self.curr = 0
+#
+#     def __call__(self):
+#         self.curr += 1
+#         return self.curr >= self.count
+
+
+class LinkedWaitCondition(WaitCondition):
+    def __init__(self, condition, evt):
+        super().__init__(condition.thread)
+        self.condition = condition
+        self.evt = evt
+
+    def __call__(self):
+        good = self.condition()
+        if good:
+            fel.remove(self.evt)
+        return good
+
+
 class Registry:
     def __init__(self):
         self.lock = Lock()
@@ -99,6 +138,16 @@ class Registry:
         self.lock.acquire()
         self.registry.append(wait_condition)
         self.lock.release()
+
+    def remove(self, wait_condition):
+        self.lock.acquire()
+        for i, cond in enumerate(self.registry):
+            if wait_condition == cond:
+                self.registry.pop(i)
+                self.lock.release()
+                return
+        self.lock.release()
+        raise Exception("Condition Not Found")
 
     def check(self):
         self.lock.acquire()
@@ -135,8 +184,6 @@ class Process(Thread):
     def run(self):
         self.cv.acquire()
 
-        schedule_future_event(StartProcessEvent(Process()), 40)
-
         self.finish()
 
     def resume(self):
@@ -146,6 +193,7 @@ class Process(Thread):
 
     def finish(self):
         resume_scheduler()
+        self.cv.release()
 
 
 # *************************************************
@@ -194,8 +242,15 @@ def wait_until(condition):
     condition.thread.cv.wait()
 
 
-def wait_until_timeout(condition, duration):
-    pass
+def wait_until_time(thread, condition, time):
+    lc = LinkedWaitCondition(condition, None)
+    re = LinkedResumeEvent(thread, lc)
+    lc.evt = re
+
+    fel.push(re, time)
+    reg.register(lc)
+    resume_scheduler()
+    thread.cv.wait()
 
 
 def resume_scheduler():
@@ -208,8 +263,8 @@ def resume_scheduler():
 #   Simulator
 # *************************************************
 if __name__ == '__main__':
+    schedule_future_event(StartProcessEvent(Process()), 0)
     schedule_future_event(StartProcessEvent(Process()), 10)
-    schedule_future_event(StartProcessEvent(Process()), 20)
     schedule_future_event(StartProcessEvent(Process()), 30)
     schedule_future_event(StartProcessEvent(Process()), 40)
 

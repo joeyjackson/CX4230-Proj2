@@ -39,13 +39,13 @@ class Peachtree:
                 self.start_spots.append(tile)
 
 
-    def update(self):
+    def update(self, dt):
         for ixn in self.ixns:
             if ixn != None:
-                ixn.update()
+                ixn.update(dt)
 
-        self.laneChangeUpdate()
-        self.movementUpdate()
+        self.laneChangeUpdate(dt)
+        self.movementUpdate(dt)
 
         # new cars arrive
         for tile in self.start_spots:
@@ -56,7 +56,7 @@ class Peachtree:
                     car.setSpace(tile)
         return
 
-    def laneChangeUpdate(self):
+    def laneChangeUpdate(self, dt):
         for i in reversed(range(c.road_length)):
             for j in range(c.road_width):
                 car = self.tiles[i,j].getOccupant()
@@ -96,13 +96,13 @@ class Peachtree:
         #print('swap')
         return True
 
-    def movementUpdate(self):
+    def movementUpdate(self, dt):
         # move existing cars
         for i in reversed(range(c.road_length)):
             for j in range(c.road_width):
                 car = self.tiles[i,j].getOccupant()
                 if car != None:
-                    car.update()
+                    car.update(dt)
         return
 
     def getNthIxn(self, n):

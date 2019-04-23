@@ -30,6 +30,7 @@ class RoadTile:
         self.pos = pos
         self.valid = (type != "X")
         self.intersection = None
+        self.waitTime = 1
 
     def __str__(self):
         if self.occupant != None:
@@ -49,6 +50,8 @@ class RoadTile:
         return self.occupant
 
     def openForMove(self):
+        if not self.valid:
+            return False
         if (self.intersection == None):
             return self.occupant == None
         if self.occupant:
@@ -73,6 +76,9 @@ class RoadTile:
     def getX(self):
         return self.pos[0]
 
+    def getWaitTime(self):
+        return self.waitTime
+
 lights = ["G", "Y", "R"]
 
 class Intersection:
@@ -89,8 +95,8 @@ class Intersection:
     def setRoad(self, road):
         self.road = road
 
-    def update(self):
-        self.timer -= 1
+    def update(self, dt):
+        self.timer -= dt
         if (self.timer <= 0):
             self.state = (self.state + 1) % self.max_state
             self.timer = self.times[self.state]

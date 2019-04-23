@@ -1,5 +1,5 @@
-from engine import *
 from input import *
+from output import *
 
 
 # *************************************************
@@ -8,3 +8,4 @@ from input import *
 if __name__ == '__main__':
     initialize_simulation()
     scheduler.start()
+    output_record.show()

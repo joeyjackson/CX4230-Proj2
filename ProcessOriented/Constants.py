@@ -43,5 +43,6 @@ seq14 = [
     (LightState.RED, 46.1)
 ]
 
-reaction_time = 1.5
-car_length = 20
+car_length = 10
+car_speed = 8.94  # 20mph
+reaction_time = 1 + (car_length / car_length)

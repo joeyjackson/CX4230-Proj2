@@ -1,8 +1,7 @@
 from engine import *
-from events import *
 from conditions import *
 from constants import *
-import random
+from output import *
 
 
 # *************************************************
@@ -25,71 +24,80 @@ class TrafficLight(Process):
 
         while True:
             color, duration = self.sequence[self.state]
-            print(fel.current_time, '\t', color)
+            # print(fel.current_time, '\t', color)
             advance_time(self, duration)
             self.state = (self.state + 1) % len(self.sequence)
-
-        # self.finish()
 
 
 # *************************************************
 #   VEHICLE
 # *************************************************
 class Vehicle(Process):
-    def __init__(self, road, lane=0):
+    def __init__(self, destination, road, lane, start_time, tracked=True):
         super().__init__()
-        self.speed = random.randint(15, 20) * 0.44704  # Feet per second
-        self.destination = 50
+        self.speed = car_speed
+        self.destination = destination
         self.road = road
         self.lane = lane
-        self.road.enter(self, lane)
-        self.reached_destination = False
+        self.start_time = start_time
+        self.tracked = tracked
 
     def run(self):
         self.cv.acquire()
-        while not self.reached_destination:
+        while self.destination >= 0:
 
-            advance_time(self, self.road.lanes[self.lane].length / self.speed)
-            wait_until(LightIsColorCondition(self, self.road.traffic_light, [LightState.GREEN]))
+            if self.destination < 10:
+                if self.destination % 2 == 0:  # Turn Right
+                    self.lane = 2
+                    wait_until(LaneOpenCondition(self, self.road, self.lane))
+                else:  # Turn Left
+                    if self.lane == 2:
+                        self.lane = 1
+                        wait_until(LaneOpenCondition(self, self.road, self.lane))
+                    lt_lane = self.road.lanes[0]
+                    curr_lane = self.road.lanes[self.lane]
+                    curr_lane.schedule()
+                    advance_time(self, (curr_lane.length - lt_lane.length) / self.speed)
+                    curr_lane.enter(self)
+                    wait_until(LaneOpenCondition(self, self.road, 0))
+                    curr_lane.exit(self)
+                    self.lane = 0
 
-            # if traffic,
-            #   enter traffic queue
-            #   waitUntil(traffic continue)
-            # if light is green:
-            #   waitUntil(light is red, through intersection)
-            #   if light is red
-            #      waitUntil(traffic continue)
+            curr_lane = self.road.lanes[self.lane]
 
-            self.reached_destination = True
-            print(fel.current_time, '\t', "Through Intersection")
+            # Drive to traffic
+            rem = curr_lane.back_pos()
+            curr_lane.schedule()
+            advance_time(self, (curr_lane.length - rem) / self.speed)
 
+            # If there is traffic, enter it
+            was_empty = curr_lane.is_empty()
+            if not was_empty:
+                curr_lane.enter(self)
+                wait_until(FrontOfLaneCondition(self, curr_lane))
+                advance_time(self, reaction_time)
+
+            if self.destination >= 10:
+                next_lane = curr_lane.next
+            else:
+                next_lane = None
+
+            if was_empty:
+                curr_lane.enter(self)
+            wait_until(CanMoveThroughIntersectionCondition(self, self.road, curr_lane, next_lane))
+            curr_lane.exit(self)
+
+            # print(fel.current_time, '\t', self.road.traffic_light.light())
+
+            if next_lane is None:
+                break
+            else:
+                self.road, self.lane = next_lane
+
+            self.destination -= 10
+
+        if self.tracked:
+            output_record.record(fel.current_time - self.start_time)
+
+        # print(fel.current_time, "Exit")
         self.finish()
-        """
-        Enter Road Segment (List/Queue) if space
-            Enter Back Moving Queue
-
-        If destination = straight:
-            Move to most open lane (excluding turn lane)
-        else if destination = left:
-            Move to left/turn lane
-        else (destination = right):
-            Move to right lane
-
-        If stopped queue not isEmpty:
-            AdvanceTime(Distance to Back of stoppedQueue / speed)
-            Add to stopped queue
-            WaitUntil(Front of stopped queue)
-            AdvanceTime(Reaction Time)
-            Dequeue from stopped queue
-
-        while (not moved to next segment):
-            WaitUntil(Light Changes to red, (Segment Length - Progress) * SpeedConst
-                + Reaction delay (place in queue))
-            if (light changes to red):
-                move to next segment
-            else (time expires):
-                add to light stopped queue
-                WaitUntil(Light changes to green)
-        """
-        pass
-

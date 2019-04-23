@@ -105,17 +105,6 @@ class WaitCondition:
         return True
 
 
-# class CountCondition(WaitCondition):
-#     def __init__(self, thread, count):
-#         super().__init__(thread)
-#         self.count = count
-#         self.curr = 0
-#
-#     def __call__(self):
-#         self.curr += 1
-#         return self.curr >= self.count
-
-
 class LinkedWaitCondition(WaitCondition):
     def __init__(self, condition, evt):
         super().__init__(condition.thread)
@@ -209,7 +198,7 @@ class Scheduler:
         self.cv.acquire()
 
     def start(self):
-        while not self.fel.is_empty() and self.fel.current_time < 200:
+        while not self.fel.is_empty() and self.fel.current_time < 50000:
             ts, evt = self.fel.pop()
             evt.handle()
             evt.message(ts)
@@ -237,9 +226,10 @@ def advance_time(thread, time):
 
 
 def wait_until(condition):
-    reg.register(condition)
-    resume_scheduler()
-    condition.thread.cv.wait()
+    if not condition():
+        reg.register(condition)
+        resume_scheduler()
+        condition.thread.cv.wait()
 
 
 def wait_until_time(thread, condition, time):
@@ -247,10 +237,11 @@ def wait_until_time(thread, condition, time):
     re = LinkedResumeEvent(thread, lc)
     lc.evt = re
 
-    fel.push(re, time)
-    reg.register(lc)
-    resume_scheduler()
-    thread.cv.wait()
+    if not condition():
+        fel.push(re, time)
+        reg.register(lc)
+        resume_scheduler()
+        thread.cv.wait()
 
 
 def resume_scheduler():

@@ -1,5 +1,7 @@
 Dependencies:
-None
+matplotlib python library for output visualizations
 
 How to Run:
-    python simulator.py
+    1. Adjust input parameters in constants.py to configure simulation to needs
+    2. Run simulator in python with:
+        >> python simulator.py

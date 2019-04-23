@@ -1,6 +1,20 @@
-from classes import *
+# from openpyxl import Workbook
+import csv
+from data_classes import *
+from data_vars import *
 
-def readStoplights(stoplight_map):
+#
+# def animate(i):
+#     line.set_ydata(vehicle_map[2].Global_X[i + 1])  # update the data
+#     return line,
+#
+# # Init only required for blitting to give a clean slate.
+# def init():
+#     line.set_ydata(np.ma.array(x, mask=True))
+#     return line,
+
+
+def readStoplights(stoplight_map, filename):
     #Since not many stoplights, just manually input
     #[GLT, YLT, RLT, GTR, YTR, Rall]
     #--> LT is left turn, Rall is basically complete stop
@@ -34,3 +48,32 @@ def readStoplights(stoplight_map):
     stoplight_map[2] = Stoplight(east12, west12, north12, south12)
     stoplight_map[3] = Stoplight(east13, west13, north13, south13)
     stoplight_map[4] = Stoplight(east14, west14, north14, south14)
+
+
+def readVehicles(vehicle_map, filename):
+    param_list = []
+
+
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        prev = 0
+        count = -1
+
+        for row in csv_reader:
+            if line_count == 0:
+                for i in range(len(row)):
+                    param_list.append(row[i])
+                    line_count += 1
+            else:
+                for i in range(len(row)):
+                    row[i] = float(row[i])
+
+                if prev == row[0]:
+                    vehicle_map[count].update(row)
+                else:
+                    count += 1
+                    prev = row[0]
+                    # print(count)
+                    vehicle_map[count] = Vehicle(row)
+                    vehicle_map[count].update(row)

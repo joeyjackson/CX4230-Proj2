@@ -1,11 +1,42 @@
-from input import *
-from output import *
-
+from constants import *
 
 # *************************************************
 #   Simulator
 # *************************************************
-if __name__ == '__main__':
+
+
+def main():
+    from engine import scheduler, reset_simulation
+    from input import initialize_simulation
+    from output import output_record
+
+    # # STEADY STATE TRANSIENT ANALYSIS
+    # for e in range(60, 1200, 10):
+    #     set_end_time(e)
+    #     print(end_time(), end='\t')
+    #
+    #     for _ in range(3):
+    #         output_record.set_record_time(0)
+    #
+    #         initialize_simulation()
+    #         scheduler.start()
+    #         output_record.done()
+    #
+    #         output_record.average(end='\t')
+    #
+    #         reset_simulation()
+    #         output_record.reset()
+    #     print()
+
+    # SIMULATION TIME DURATION DISTRIBUTION
+    output_record.set_record_time(600)
+    set_end_time(10000)
+
     initialize_simulation()
     scheduler.start()
-    output_record.show()
+    output_record.done()
+
+    output_record.show(bins=22)
+
+if __name__ == '__main__':
+    main()

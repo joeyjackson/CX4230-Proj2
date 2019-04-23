@@ -1,4 +1,4 @@
-from engine import *
+from engine import WaitCondition
 
 
 class LightIsColorCondition(WaitCondition):
@@ -43,3 +43,11 @@ class LaneOpenCondition(WaitCondition):
 
     def __call__(self):
         return self.lane.is_open()
+
+
+class WaitForever(WaitCondition):
+    def __init__(self, thread):
+        super().__init__(thread)
+
+    def __call__(self):
+        return False

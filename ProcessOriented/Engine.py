@@ -1,5 +1,6 @@
 from threading import Thread, Lock, Condition
 import heapq
+from constants import *
 
 
 # *************************************************
@@ -91,6 +92,12 @@ class FutureEventList:
         self.lock.release()
         return empty
 
+    def reset(self):
+        self.lock.acquire()
+        self.pq = []
+        self.current_time = 0
+        self.lock.release()
+
 
 # *************************************************
 #   CONDITIONS
@@ -154,6 +161,11 @@ class Registry:
 
         self.lock.release()
 
+    def reset(self):
+        self.lock.acquire()
+        self.registry = []
+        self.lock.release()
+
 
 # *************************************************
 #   PROCESSES
@@ -198,7 +210,7 @@ class Scheduler:
         self.cv.acquire()
 
     def start(self):
-        while not self.fel.is_empty() and self.fel.current_time < 50000:
+        while not self.fel.is_empty() and self.fel.current_time < end_time():
             ts, evt = self.fel.pop()
             evt.handle()
             evt.message(ts)
@@ -213,6 +225,15 @@ reg = Registry()
 fel = FutureEventList()
 scheduler = Scheduler(fel, reg)
 scv = scheduler.cv
+
+
+def current_time():
+    return fel.current_time
+
+
+def reset_simulation():
+    reg.reset()
+    fel.reset()
 
 
 def schedule_future_event(evt, time):

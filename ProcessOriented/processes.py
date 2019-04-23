@@ -1,7 +1,7 @@
-from engine import *
-from conditions import *
+from engine import Process, advance_time, wait_until, current_time
+from conditions import WaitForever, LaneOpenCondition, CanMoveThroughIntersectionCondition, FrontOfLaneCondition
+from output import output_record
 from constants import *
-from output import *
 
 
 # *************************************************
@@ -27,6 +27,21 @@ class TrafficLight(Process):
             # print(fel.current_time, '\t', color)
             advance_time(self, duration)
             self.state = (self.state + 1) % len(self.sequence)
+
+
+class NoLight(Process):
+    def __init__(self):
+        super().__init__()
+
+    def light(self):
+        self.cv.acquire()
+        l = LightState.GREEN
+        self.cv.release()
+        return l
+
+    def run(self):
+        self.cv.acquire()
+        wait_until(WaitForever(self))
 
 
 # *************************************************
@@ -97,7 +112,7 @@ class Vehicle(Process):
             self.destination -= 10
 
         if self.tracked:
-            output_record.record(fel.current_time - self.start_time)
+            output_record.record(current_time() - self.start_time)
 
         # print(fel.current_time, "Exit")
         self.finish()

@@ -1,105 +1,107 @@
-from helper_functions import *
-from classes import *
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import animation
-import arcade
-from vars import *
 
-#Read data
-global vehicle_map
-global stoplight_map
-vehicle_map = dict()
-stoplight_map = dict()
-
-readStoplights(stoplight_map, "stoplight.csv")
-readVehicles(vehicle_map, "trajectories-0400pm-0415pm_editted.csv")
-
-# fig, ax = plt.subplots()
-# line, = ax.plot(vehicle_map[2].Global_Y, vehicle_map[2].Global_X)
-# ani = animation.FuncAnimation(
-#     fig, animate, init_func=init, interval=2, blit=True, save_count=50)
-#
-# plt.show()
-
-time = 0
-#moving rectangle animation
-
-def on_draw(delta_time):
-    global time
-    # print(on_draw.center_x)
-    """
-    Use this function to draw everything to the screen.
-    """
-
-    # Start the render. This must happen before any drawing
-    # commands. We do NOT need a stop render command.
-    arcade.start_render()
-
-    #here it should be len(on_draw.center_x) instead of 10 for all vehicles
-    for i in range(10):
-        arcade.draw_rectangle_filled(on_draw.center_x[i], on_draw.center_y[i],
-                                     RECT_WIDTH, RECT_HEIGHT,
-                                     arcade.color.ALIZARIN_CRIMSON)
-
-
-    # Modify rectangles position based on the delta
-    # vector. (Delta means change. You can also think
-    # of this as our speed and direction.)
-
-    for i in range(len(vehicle_map)):
-        if time < len(vehicle_map[i].Global_X):
-            on_draw.center_x[i] = Xfac * (vehicle_map[i].Global_X[time] - GLOBAL_X_MIN)
-            on_draw.center_y[i] = Yfac * (vehicle_map[i].Global_Y[time] - GLOBAL_Y_MIN)
-    # on_draw.center_x = Xfac * (vehicle_map[2].Global_X[time] - GLOBAL_X_MIN)
-    # on_draw.center_y = Yfac * (vehicle_map[2].Global_Y[time] - GLOBAL_Y_MIN)
-    # print(on_draw.center_x[0])
-    time += 1
-
-    # Figure out if we hit the edge and need to reverse.
-    # if on_draw.center_x < RECT_WIDTH // 2 \
-    #         or on_draw.center_x > SCREEN_WIDTH - RECT_WIDTH // 2:
-    #     on_draw.delta_x *= -1
-    # if on_draw.center_y < RECT_HEIGHT // 2 \
-    #         or on_draw.center_y > SCREEN_HEIGHT - RECT_HEIGHT // 2:
-    #     on_draw.delta_y *= -1
-
-# Below are function-specific variables. Before we use them
-# in our function, we need to give them initial values. Then
-# the values will persist between function calls.
-#
-# In other languages, we'd declare the variables as 'static' inside the
-# function to get that same functionality.
-#
-# Later on, we'll use 'classes' to track position and velocity for multiple
-# objects.
-
-on_draw.center_x = []      # Initial x position
-on_draw.center_y = []       # Initial y position
-
-for i in range(len(vehicle_map)):
-    on_draw.center_x.append(0.0)
-    on_draw.center_y.append(0.0)
-
-print(len(vehicle_map[0].Global_X))
-
-
-# on_draw.delta_x = 115  # Initial change in x
-# on_draw.delta_y = 130  # Initial change in y
-
+from engine import *
+import time
+from constants import *
+list_avetime = []
+list_passed = []
 
 def main():
-    # Open up our window
-    arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    arcade.set_background_color(arcade.color.WHITE)
-
-    # Tell the computer to call the draw command at the specified interval.
-    arcade.schedule(on_draw, 1 / 80)
+    #Future Event List
+    fel = FutureEventList()
 
 
-    # Run the program
-    arcade.run()
+    #Make Future Event List
+    #Based on 15mins/900 seconds given and stoplight data
+    for t in range(1, 901):
+        index10=index11=index12=index14 = [0, 0, 0, 0]
+        stop10 = [east10, west10, north10, south10]
+        stop11 = [east11, west11, north11, south11]
+        stop12 = [east12, west12, north12, south12]
+        stop14 = [east14, west14, north14, south14]
+        tval10 = [t%sum(east10), t%sum(west10), t%sum(north10), t%sum(south10)]
+        tval11 = [t%sum(east11), t%sum(west11), t%sum(north11), t%sum(south11)]
+        tval12 = [t%sum(east12), t%sum(west12), t%sum(north12), t%sum(south12)]
+        # tval13 = [t%sum(east13), t%sum(west13), t%sum(north13), t%sum(south13)]
+        tval14 = [t%sum(east14), t%sum(west14), t%sum(north14), t%sum(south14)]
 
 
-if __name__ == "__main__":
-    main()
+        for i in range(4):
+            count = 0
+            for j in range(6):
+                if tval10[i] > sum((stop10[i])[0:j+1]):
+                    count+=1
+            index10[i] = count
+
+
+        for i in range(4):
+            count = 0
+            for j in range(6):
+                if tval11[i] > sum((stop11[i])[0:j+1]):
+                    count+=1
+            index11[i] = count
+
+        for i in range(4):
+            count = 0
+            for j in range(6):
+                if tval12[i] > sum((stop12[i])[0:j+1]):
+                    count+=1
+            index12[i] = count
+
+        for i in range(4):
+            count = 0
+            for j in range(6):
+                if tval14[i] > sum((stop14[i])[0:j+1]):
+                    count+=1
+            index14[i] = count
+
+
+        event = Event(t, index10, index11, index12, index14)
+        fel.push(event)
+
+
+    print(fel.q.qsize())
+
+
+    #Time statistics
+    start_time = time.time()
+    NEvents = 0
+
+    #Event Processing Loop
+    world = World()
+    fin_vehicles = []
+    now = 0
+    print("Now: " + str(now) + "\n")
+    print("|10th|===" + str(world.q10to11.qsize()) + "===|11th|===" +  str(world.q11to12.qsize()) + "===|12th|===" +  str(world.q12to13.qsize()) + "===|13th|===" + str(world.q13to14.qsize()) + "===|14th|" +"\n")
+    while not fel.is_empty():
+        currEvent = fel.pop()
+
+        world.updateServer(currEvent)
+        timeDif = currEvent.ts - now
+        now = currEvent.ts
+        eventHandler(now, timeDif, currEvent, world, fin_vehicles)
+        print("Now: " + str(now) + "\n")
+        print("|10th|===" + str(world.q10to11.qsize()) + "===|11th|===" +  str(world.q11to12.qsize()) + "===|12th|===" +  str(world.q12to13.qsize()) + "===|13th|===" + str(world.q13to14.qsize()) + "===|14th|" +"\n")
+
+
+    vehicle10to14 = 0
+    passtime = []
+    for vehicle in fin_vehicles:
+        if vehicle.type == True and vehicle.finished == True:
+            vehicle10to14 += 1
+            passtime.append(vehicle.time)
+            print(str(vehicle10to14) + ": " + str(vehicle.time) + "seconds")
+
+    print("There are: " + str(vehicle10to14) + " vehicles that travelled from 10th to 14th")
+    end_time = time.time()
+    list_avetime.append(sum(passtime)/len(passtime))
+    list_passed.append(vehicle10to14)
+
+if __name__ == '__main__':
+    for i in range(10):
+        main()
+    print("\n")
+    print("List of simulation average time in seconds:")
+    print(list_avetime)
+    print("-------------------")
+    print("List of the number of vehicles that travelled from 10th to 14th:")
+    print(list_passed)

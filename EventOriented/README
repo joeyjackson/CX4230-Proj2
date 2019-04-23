@@ -1,7 +1,0 @@
-Things to install:
-numpy, matplotlib, arcade
-
-Run Program by:
-python main.py
-
-Currently only 10 vehicles are shown for easy simulation

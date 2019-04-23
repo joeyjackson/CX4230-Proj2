@@ -5,7 +5,8 @@ from constants import *
 list_avetime = []
 list_passed = []
 
-def main():
+
+def main(ENTER_PROB, CAR_PROB):
     #Future Event List
     fel = FutureEventList()
 
@@ -59,15 +60,12 @@ def main():
         fel.push(event)
 
 
-    print(fel.q.qsize())
-
-
     #Time statistics
     start_time = time.time()
     NEvents = 0
 
     #Event Processing Loop
-    world = World()
+    world = World(ENTER_PROB, CAR_PROB)
     fin_vehicles = []
     now = 0
     print("Now: " + str(now) + "\n")
@@ -78,7 +76,7 @@ def main():
         world.updateServer(currEvent)
         timeDif = currEvent.ts - now
         now = currEvent.ts
-        eventHandler(now, timeDif, currEvent, world, fin_vehicles)
+        eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, currEvent, world, fin_vehicles)
         print("Now: " + str(now) + "\n")
         print("|10th|===" + str(world.q10to11.qsize()) + "===|11th|===" +  str(world.q11to12.qsize()) + "===|12th|===" +  str(world.q12to13.qsize()) + "===|13th|===" + str(world.q13to14.qsize()) + "===|14th|" +"\n")
 
@@ -98,7 +96,10 @@ def main():
 
 if __name__ == '__main__':
     for i in range(10):
-        main()
+        ENTER_PROB = [random.uniform(0.10, 0.16), 0.30, 0.30, 0.15, 0.12] #Calculated for 10th intersection was 0.13
+        CAR_PROB = random.uniform(4.30, 4.54) / 5.0 #calculated CAR_PROB was 4.42
+        # print(CAR_PROB)
+        main(ENTER_PROB, CAR_PROB)
     print("\n")
     print("List of simulation average time in seconds:")
     print(list_avetime)

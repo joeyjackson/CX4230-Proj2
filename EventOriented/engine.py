@@ -2,12 +2,10 @@ import queue
 from constants import *
 import random
 
-INITIAL_VEH = 50 #Initial number of vehicles in the road segments
+INITIAL_VEH = 50#Initial number of vehicles in the road segments
 #probablity is obtained from estimated number of vehicles entering server10
 #from the NGSIM data divided by total amount of simulation time 900s
-ENTER_PROB = [0.13, 0.30, 0.30, 0.15, 0.12] #Calculated for 10th intersection was 0.13
-SERVER_PROB = 0.2 #default is 0.25
-CAR_PROB = 4.42 / 5.0
+SERVER_PROB = 0.2
 
 class Event:
     def __init__(self, ts, index10, index11, index12, index14):
@@ -54,11 +52,13 @@ class Vehicle:
 
 
 class World:
-    def __init__(self):
+    def __init__(self, ENTER_PROB, CAR_PROB):
         self.q10to11 = queue.Queue()
         self.q11to12 = queue.Queue()
         self.q12to13 = queue.Queue()
         self.q13to14 = queue.Queue()
+        self.ENTER_PROB = ENTER_PROB
+        self.CAR_PROB = CAR_PROB
 
         #Initialize world with some cars in the roads:
         for i in range(INITIAL_VEH):
@@ -107,7 +107,7 @@ class World:
                 server_p = self.s13
             else:
                 server_p = self.s14
-            temp = CAR_PROB * server_p
+            temp = self.CAR_PROB * server_p
             if random.uniform(0, 1) <= temp:
                 out[i] = True
             else:
@@ -116,7 +116,7 @@ class World:
 
 
 #Event Handler Procedure
-def eventHandler(now, timeDif, evt, world, fin_vehicles):
+def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles):
     for i in range(timeDif):
         #checks if the server allows pass through but still have to check stop light is not red
         out = world.passIntersection()

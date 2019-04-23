@@ -1,5 +1,7 @@
 
 import time
+import matplotlib.pyplot as plt
+import constants as c
 from road import Peachtree
 
 def main():
@@ -7,11 +9,15 @@ def main():
 
     peachtree = Peachtree()
 
-    for t in range(1000):
+    dt = 0.5
+    for t in range(4000):
         # print("time", t)
-        peachtree.update();
-        time.sleep(0.05)
+        peachtree.update(dt);
+        # time.sleep(0.001)
         print(peachtree)
+
+    # plt.hist(c.car_lifespans)
+    # plt.show()
 
 
 

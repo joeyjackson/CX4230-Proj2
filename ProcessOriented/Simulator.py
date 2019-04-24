@@ -37,6 +37,7 @@ def main():
     output_record.done()
 
     output_record.show(bins=22)
+    output_record.average()
 
 if __name__ == '__main__':
     main()

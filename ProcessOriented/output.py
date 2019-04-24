@@ -1,5 +1,4 @@
 from threading import Lock
-from matplotlib import pyplot as plt
 import numpy as np
 from engine import current_time
 
@@ -28,13 +27,18 @@ class Record:
 
     def show(self, bins=None):
         self.lock.acquire()
-        plt.hist(self.pts, bins=bins)
-        plt.show()
+        try:
+            from matplotlib import pyplot as plt
+            plt.hist(self.pts, bins=bins)
+            plt.show()
+        except ImportError:
+            print(self.pts)
         self.lock.release()
 
     def average(self, end='\n'):
         self.lock.acquire()
-        print(np.mean(self.pts), end=end)
+        print("Mean", np.mean(self.pts), end=end)
+        print("Stddev", np.std(self.pts), end=end)
         self.lock.release()
 
     def reset(self):

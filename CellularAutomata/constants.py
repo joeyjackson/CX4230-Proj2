@@ -1,10 +1,9 @@
 from tiles import Intersection
+import numpy as np
 
 car_lifespans = []
 
-v_max = 1
-arrival_rate = 0.02
-
+roadWaitTime = 1.4
 
 peachTreeMap = [["ILO", "IS", "IR"]]
 peachTreeMap += [["L", "S", "S"] for _ in range(20)]
@@ -51,7 +50,7 @@ ixns = [
         "times": [61, 3, 36]
     },
     { # 13th
-        "i":76,
+        "i":72,
         "lights": ["g"],
         "times": [100]
     },
@@ -68,49 +67,57 @@ spawns = [
         "lights": ["R", "x", "G", "Y"],
         "times": [55, 10, 30, 5],
         "coords": (0, 2),
-        "beta": 19.99
+        "beta": 19.99,
+        "destf": lambda: np.random.choice(["3L", "3S", "3R", "2R", "1R", "1L", "0R", "0R"], p=[0.09375, 0.5625, 0.0625, 0.03125, 0.03125, 0.03125, 0.09375, 0.09375])
     },
     { #10th northbound 101
         "lights": ["G", "Y", "R", "x"],
         "times": [35, 4, 50, 10],
         "coords": (0, 2),
-        "beta": 6.47
+        "beta": 6.47,
+        "destf": lambda: np.random.choice(["3L", "3S", "3R", "2R", "1R", "1L", "0R", "0R"], p=[0.09375, 0.7083333333333334, 0.03125, 0.020833333333333332, 0.03125, 0.0625, 0.041666666666666664, 0.010416666666666666])
     },
     { #10th westbound 102
         "lights": ["R", "x", "G", "Y"],
         "times": [87, 5, 4, 4],
         "coords": (0, 1),
-        "beta": 19.99
+        "beta": 19.99,
+        "destf": lambda: np.random.choice(["3L", "3S", "3R", "2R", "1R", "1L", "0R", "0R"], p=[0.125, 0.59375, 0.03125, 0.03125, 0.03125, 0.0625, 0.0625, 0.0625])
     },
     { #11th eastbound 122
         "lights": ["R", "G", "Y"],
         "times": [76, 4, 20],
         "coords": (26, 1),
-        "beta": 85.76
+        "beta": 85.76,
+        "destf": lambda: "3S"
     },
     { #11th westbound 103
         "lights": ["R", "G", "Y"],
         "times": [76, 4, 20],
         "coords": (26, 1),
-        "beta": 85.76
+        "beta": 85.76,
+        "destf": lambda: "3S"
     },
     { #12th eastbound 121
         "lights": ["R", "G", "Y"],
         "times": [69, 4, 27],
         "coords": (51, 1),
-        "beta": 85.76
+        "beta": 85.76,
+        "destf": lambda: "3S"
     },
     { #12th westbound 106
         "lights": ["R", "G", "Y"],
         "times": [69, 4, 27],
         "coords": (51, 1),
-        "beta": 85.76
+        "beta": 85.76,
+        "destf": lambda: "3S"
     },
-    { #12th westbound 112
+    { #13th westbound 112
         "lights": ["G"],
         "times": [100],
-        "coords": (76, 1),
-        "beta": 85.76
+        "coords": (72, 1),
+        "beta": 85.76,
+        "destf": lambda: "3S"
     }
 ]
 

@@ -38,8 +38,11 @@ class Peachtree:
                 coords=protospawn["coords"],
                 lights=protospawn["lights"],
                 times=protospawn["times"],
-                beta=protospawn["beta"])
-            spawn.addTile(self.tiles[protospawn["coords"][0], protospawn["coords"][1]])
+                beta=protospawn["beta"],
+                destf=protospawn["destf"])
+            spawnTile = self.tiles[protospawn["coords"][0], protospawn["coords"][1]]
+            spawnTile.setSpawn()
+            spawn.addTile(spawnTile)
             self.spawns.append(spawn)
 
 

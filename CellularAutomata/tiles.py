@@ -32,12 +32,18 @@ class RoadTile:
         self.pos = pos
         self.valid = (type != "X")
         self.intersection = None
-        self.waitTime = 1.35
+        self.waitTime = c.roadWaitTime
+        self.spawn = False
 
     def __str__(self):
-        if self.occupant != None:
-            return "O"
+        if self.spawn:
+            return "&"
+        # if self.occupant != None:
+        #     return "O"
         return tileRender[self.type]
+
+    def setSpawn(self):
+        self.spawn = True
 
     def giveSpace(self, car):
         self.occupant = car
@@ -83,8 +89,6 @@ class RoadTile:
     def getWaitTime(self):
         return self.waitTime
 
-lights = ["G", "Y", "R"]
-
 class Intersection:
     def __init__(self, road=None, i=0, lights=["G","Y","R"], times=[10, 5, 10]):
         self.road = road
@@ -119,7 +123,7 @@ class Intersection:
         return self.lights[self.state]
 
 class Spawn:
-    def __init__(self, road=None, coords=0, lights=["G","Y","R"], times=[10, 5, 10], beta=200):
+    def __init__(self, road=None, coords=0, lights=["G","Y","R"], times=[10, 5, 10], beta=200, destf=lambda: "S"):
         self.road = road
         self.coords = coords
         self.lights = lights
@@ -127,10 +131,10 @@ class Spawn:
         self.max_state = len(lights)
         self.state = 0
         self.timer = self.times[0]
-        self.tiles = []
+        self.tiles = None
         self.lifespan = beta
-        self.kids = 1
         self.beta = beta
+        self.destf = destf
         self.spawnTime = np.random.exponential(self.beta)
         self.spawnCounter = 0
 
@@ -145,12 +149,12 @@ class Spawn:
             self.timer = self.times[self.state]
 
         if self.spawnOpen():
-            if self.tiles[0].openForMove():
+            if self.tile.openForMove():
                 if self.spawnCounter > self.spawnTime:
                     self.spawnCounter -= self.spawnTime
                     self.spawnTime = np.random.exponential(self.beta)
-                    car = vehicles.Car(self.road)
-                    car.setSpace(self.tiles[0])
+                    car = vehicles.Car(self.road, self.destf)
+                    car.setSpace(self.tile)
             # else:
                 # print(self.coords)
                 # print(self.tiles[0].pos)
@@ -158,7 +162,7 @@ class Spawn:
 
 
     def addTile(self, tile):
-        self.tiles.append(tile)
+        self.tile = tile
 
     def spawnOpen(self):
         return self.lights[self.state] in ["G", "g", "Y", "y"]

@@ -2,24 +2,19 @@ import constants as c
 import numpy as np
 
 class Car:
-    def __init__(self, road):
+    def __init__(self, road, destf):
         self.road = road
-        self.speed = 2
         self.pos = (-1, -1)
         self.tile = None
         self.justLaneChanged = False
-        self.dest = np.random.choice(["L", "R"])
+        self.goal = destf()
+        self.dest = self.goal[1]
         self.dest_lane = c.dests_side_to_lane[self.dest]
-        self.dixn_i = np.random.randint(8)
+        self.dixn_i = int(self.goal[0])
         self.dixn = road.getNthIxn(self.dixn_i)
-        self.straight = self.dixn_i >= 4
+        self.straight = "S" in self.goal
         self.lifespan = 0
         self.timeInSpot = 0
-        self.start_straight = False
-
-        if self.dest == "L" and self.dixn_i == 2:
-            self.dixn = None
-
         return
 
     def update(self, dt):
@@ -28,7 +23,7 @@ class Car:
         x, y = self.pos
 
 
-        if self.timeInSpot > self.tile.getWaitTime():
+        if self.timeInSpot >= self.tile.getWaitTime():
             if self.dixn != None and self.tile.getIntersection() == self.dixn:
                 self.die()
                 return
@@ -45,32 +40,28 @@ class Car:
                                 self.setSpace(self.road.tiles[x, y+dir])
                                 return
                 # move forward
-                for _ in range(c.v_max):
-                    if (x+1 >= c.road_length):
-                        self.die()
-                        break
-                    if isSpotFree(self.road, x+1, y):
+                if (x+1 >= c.road_length):
+                    self.die()
+                    return
+                if isSpotFree(self.road, x+1, y):
+                    self.setSpace(self.road.tiles[x+1,y])
+                elif not self.straight and self.dest == "R":
+                    tile = self.road.tiles[x+1, y]
+                    if tile.isRedRightTurnOpen():
                         self.setSpace(self.road.tiles[x+1,y])
-                    elif not self.straight and self.dest == "R":
-                        tile = self.road.tiles[x+1, y]
-                        if tile.isRedRightTurnOpen():
-                            self.setSpace(self.road.tiles[x+1,y])
-                            # print("right on red!")
+                        # print("right on red!")
 
         self.justLaneChanged = False
         return
 
     def die(self):
-        if (self.start_straight):
+        if self.straight:
             c.car_lifespans.append(self.lifespan)
         self.setSpace(None)
         self.tile.clearSpace()
 
 
     def setSpace(self, tile):
-        if (self.pos[0] == -1):
-            if tile.getPos()[0] == 0:
-                self.start_straight = True
 
         self.timeInSpot = 0
         if self.tile != None:
@@ -93,13 +84,11 @@ class Car:
         return self.pos[0] < self.dixn.getX() and self.dixn == self.road.getNextIxn(self.pos[0])
 
     def __str__(self):
+        if self.straight:
+            return "D"
         if self.dixn != None and self.dixn.getX() < self.pos[0]:
             # print("MISSED")
             return "M"
-        if self.justLaneChanged:
-            return "K"
-        if self.dixn_i >= 4:
-            return "D"
         return str(self.dixn_i)
 
 def isSpotFree(road, x, y):

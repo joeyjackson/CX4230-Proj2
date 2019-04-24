@@ -29,6 +29,7 @@ class Record:
         self.lock.acquire()
         try:
             from matplotlib import pyplot as plt
+            plt.title("Road Trip Duration Distribution")
             plt.hist(self.pts, bins=bins)
             plt.show()
         except ImportError:

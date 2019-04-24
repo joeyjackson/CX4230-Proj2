@@ -3,7 +3,7 @@ import numpy as np
 
 car_lifespans = []
 
-roadWaitTime = 1.4
+roadWaitTime = 1.2
 
 peachTreeMap = [["ILO", "IS", "IR"]]
 peachTreeMap += [["L", "S", "S"] for _ in range(20)]
@@ -17,6 +17,7 @@ peachTreeMap += ["ILO", "IS", "IR"],
 peachTreeMap += [["L", "S", "S"] for _ in range(6)]
 peachTreeMap += [["X", "S", "S"] for _ in range(19)]
 peachTreeMap = peachTreeMap[::-1]
+print(len(peachTreeMap))
 # print(peachTreeMap)
 
 # laneChangeLeft = {
@@ -50,7 +51,7 @@ ixns = [
         "times": [61, 3, 36]
     },
     { # 13th
-        "i":72,
+        "i":71,
         "lights": ["g"],
         "times": [100]
     },
@@ -87,35 +88,35 @@ spawns = [
     { #11th eastbound 122
         "lights": ["R", "G", "Y"],
         "times": [76, 4, 20],
-        "coords": (26, 1),
+        "coords": (25, 1),
         "beta": 85.76,
         "destf": lambda: "3S"
     },
     { #11th westbound 103
         "lights": ["R", "G", "Y"],
         "times": [76, 4, 20],
-        "coords": (26, 1),
+        "coords": (25, 2),
         "beta": 85.76,
         "destf": lambda: "3S"
     },
     { #12th eastbound 121
         "lights": ["R", "G", "Y"],
         "times": [69, 4, 27],
-        "coords": (51, 1),
+        "coords": (50, 1),
         "beta": 85.76,
         "destf": lambda: "3S"
     },
     { #12th westbound 106
         "lights": ["R", "G", "Y"],
         "times": [69, 4, 27],
-        "coords": (51, 1),
+        "coords": (50, 2),
         "beta": 85.76,
         "destf": lambda: "3S"
     },
     { #13th westbound 112
         "lights": ["G"],
         "times": [100],
-        "coords": (72, 1),
+        "coords": (71, 2),
         "beta": 85.76,
         "destf": lambda: "3S"
     }

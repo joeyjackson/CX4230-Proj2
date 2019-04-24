@@ -24,7 +24,10 @@ def main():
             # print("time", t)
             peachtree.update(dt);
             # time.sleep(0.001)
-            print(peachtree)
+
+            # if (t * dt % 1 == 0):
+            #     print(peachtree)
+
             # rows.append(peachtree.getVisRow())
 
         # plt.imshow(rows[-4000::10])

@@ -36,8 +36,8 @@ class RoadTile:
         self.spawn = False
 
     def __str__(self):
-        if self.spawn:
-            return "&"
+        # if self.spawn:
+        #     return "&"
         # if self.occupant != None:
         #     return "O"
         return tileRender[self.type]
@@ -65,7 +65,7 @@ class RoadTile:
         if self.occupant:
             return False
         if self.type == "ILO":
-            return self.intersection.lights[self.intersection.state] in ["g", "y"]
+            return self.intersection.lights[self.intersection.state] in ["g"]
         return self.intersection.ixnOpen()
 
     def isValid(self):
@@ -113,8 +113,7 @@ class Intersection:
         self.tiles.append(tile)
 
     def ixnOpen(self):
-        return self.lights[self.state] in ["G", "g", "Y", "y"]
-
+        return self.lights[self.state] in ["G", "g"]
 
     def getX(self):
         return self.i

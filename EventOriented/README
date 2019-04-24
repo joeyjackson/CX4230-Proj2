@@ -1,0 +1,54 @@
+Important files in this folder:
+main.py --> contains code that matches the event-oriented world view
+engine.py --> contains the classes including Event, FutureEventList, Vehicle, World
+            also contains the EventHandler function
+constants.py --> contains signal timing data and max sizes of the queues
+
+Other files:
+data.py, data_helper, data_vars, data_classes
+    --> used for NGSIM data analysis
+Given files:
+signalTiming.xls --> stoplight signals of 10th to 14th intersection of Peachtree St NE
+trajectories-0400pm-0415pm_editted.csv --> 15 minute vehicle data
+
+How to run program: python main.py
+Sample output (small part of actual output). "Now" represents time from 0 to 900 seconds
+and below it is the road network with number of vehicles in each queue. Simulation averages
+and number of vehicles travelled in each simulation are printed. Lastly,
+the 95% confidence interval showing mean, lower bound, and upper bound is shown.
+
+
+Now: 859
+
+|10th|===56===|11th|===0===|12th|===0===|13th|===0===|14th|
+
+Now: 862
+
+|10th|===56===|11th|===0===|12th|===0===|13th|===0===|14th|
+
+Now: 900
+
+|10th|===55===|11th|===0===|12th|===0===|13th|===0===|14th|
+
+.
+.
+.
+.
+
+106: 116seconds
+107: 116seconds
+108: 70seconds
+109: 70seconds
+There are: 109 vehicles that travelled from 10th to 14th
+
+
+List of simulation average time in seconds:
+[133.5934065934066, 132.44642857142858, 129.95505617977528, 126.26595744680851, 129.39814814814815, 130.7196261682243, 130.70454545454547, 126.75490196078431, 136.8653846153846, 128.0]
+-------------------
+List of the number of vehicles that travelled from 10th to 14th:
+[91, 112, 89, 94, 108, 107, 88, 102, 104, 109]
+mean: 130.47034551385056
+
+low: 128.16251317893094
+
+high: 132.77817784877018

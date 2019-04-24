@@ -1,5 +1,6 @@
 from enum import Enum
 import random
+import numpy as np
 
 
 class LightState(Enum):
@@ -53,25 +54,25 @@ seq10E = [
     (LightState.RED, 55)
 ]
 
-endt = 60
+endt = 1000
 
-car_length = 10
-car_speed = 4.4196  # 14.5 ft/s
-reaction_time = 2 + (car_length / car_length)
+car_length = 5
+car_speed = 7.5  # m/s
+reaction_time = 1 + (car_length / car_length)
 
-ip101_dist = lambda: random.gauss(7, 3)
-ip102_dist = lambda: random.gauss(7, 3)
-ip123_dist = lambda: random.gauss(7, 3)
-ip103_dist = lambda: random.gauss(7, 3)
-ip106_dist = lambda: random.gauss(7, 3)
-ip112_dist = lambda: random.gauss(7, 3)
+ip101_dist = lambda: np.random.exponential(scale=6.471338129496403)
+ip102_dist = lambda: np.random.exponential(scale=19.988775280898874)
+ip123_dist = lambda: np.random.exponential(scale=19.988775280898874)
+ip103_dist = lambda: np.random.exponential(scale=85.76111111111112)
+ip106_dist = lambda: np.random.exponential(scale=85.76111111111112)
+ip112_dist = lambda: np.random.exponential(scale=85.76111111111112)
 
-ip101_dest_dist = lambda: random.randint(0, 30)
-ip102_dest_dist = lambda: random.randint(0, 30)
-ip123_dest_dist = lambda: random.randint(0, 30)
-ip103_dest_dist = lambda: random.randint(0, 30)
-ip106_dest_dist = lambda: random.randint(0, 30)
-ip112_dest_dist = lambda: random.randint(0, 30)
+ip101_dest_dist = lambda: np.random.choice([39, 40, 38, 28, 18, 19, 8, 8], p=[0.09375, 0.7083333333333334, 0.03125, 0.020833333333333332, 0.03125, 0.0625, 0.041666666666666664, 0.010416666666666666])
+ip102_dest_dist = lambda: np.random.choice([39, 40, 38, 28, 18, 19, 8, 8], p=[0.125, 0.59375, 0.03125, 0.03125, 0.03125, 0.0625, 0.0625, 0.0625])
+ip123_dest_dist = lambda: np.random.choice([39, 40, 38, 28, 18, 19, 8, 8], p=[0.09375, 0.5625, 0.0625, 0.03125, 0.03125, 0.03125, 0.09375, 0.09375])
+ip103_dest_dist = lambda: np.random.choice([29, 30, 28, 18, 8, 9], p=[0.166, 0.17, 0.166, 0.166, 0.166, 0.166])
+ip106_dest_dist = lambda: np.random.choice([19, 20, 18, 8], p=[0.25, 0.25, 0.25, 0.25])
+ip112_dest_dist = lambda: np.random.choice([9, 10, 8], p=[0.33, 0.33, 0.34])
 
 ip101_lane_dist = lambda: random.randint(1, 2)
 ip102_lane_dist = lambda: random.randint(1, 2)

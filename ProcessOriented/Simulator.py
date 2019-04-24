@@ -11,7 +11,7 @@ def main():
     from output import output_record
 
     # # STEADY STATE TRANSIENT ANALYSIS
-    # for e in range(60, 1200, 10):
+    # for e in range(110, 1201, 10):
     #     set_end_time(e)
     #     print(end_time(), end='\t')
     #
@@ -29,7 +29,7 @@ def main():
     #     print()
 
     # SIMULATION TIME DURATION DISTRIBUTION
-    output_record.set_record_time(600)
+    output_record.set_record_time(200)
     set_end_time(10000)
 
     initialize_simulation()

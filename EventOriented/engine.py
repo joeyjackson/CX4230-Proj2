@@ -5,7 +5,7 @@ import random
 INITIAL_VEH = 50#Initial number of vehicles in the road segments
 #probablity is obtained from estimated number of vehicles entering server10
 #from the NGSIM data divided by total amount of simulation time 900s
-SERVER_PROB = 0.2
+SERVER_PROB = 0.5
 
 class Event:
     def __init__(self, ts, index10, index11, index12, index14):
@@ -116,7 +116,7 @@ class World:
 
 
 #Event Handler Procedure
-def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles):
+def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles, in101, in102, in103, in106, in112, in123):
     for i in range(timeDif):
         #checks if the server allows pass through but still have to check stop light is not red
         out = world.passIntersection()
@@ -125,6 +125,8 @@ def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles):
             if world.q10to11.qsize() < from10to11:
                 car = Vehicle(now, True)
                 world.q10to11.put(car)
+        if now < in101[0]:
+            in101.pop(0)
         for j in range(1, len(out)):
             if out[j]:
                 if j == 1:
@@ -146,6 +148,8 @@ def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles):
                         if world.q11to12.qsize() < from11to12:
                             side_car = Vehicle(now, False)
                             world.q11to12.put(side_car)
+                    if now < in103[0]:
+                        in103.pop(0)
 
                 elif j == 2:
                     if not world.q11to12.empty():
@@ -163,6 +167,8 @@ def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles):
                         if world.q12to13.qsize() < from12to13:
                             side_car = Vehicle(now, False)
                             world.q12to13.put(side_car)
+                    if now < in106[0]:
+                        in106.pop(0)
 
                 elif j == 3:
                     if not world.q12to13.empty():
@@ -178,6 +184,8 @@ def eventHandler(ENTER_PROB, CAR_PROB, now, timeDif, evt, world, fin_vehicles):
                         if world.q13to14.qsize() < from13to14:
                             side_car = Vehicle(now, False)
                             world.q13to14.put(side_car)
+                    if now < in112[0]:
+                        in112.pop(0)
 
                 elif j == 4:
                     if not world.q13to14.empty():

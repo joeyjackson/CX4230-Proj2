@@ -1,4 +1,6 @@
 import constants as c
+import vehicles
+import numpy as np
 
 tiles = [
     'L',  #Left turn only lane
@@ -30,7 +32,7 @@ class RoadTile:
         self.pos = pos
         self.valid = (type != "X")
         self.intersection = None
-        self.waitTime = 1
+        self.waitTime = 1.35
 
     def __str__(self):
         if self.occupant != None:
@@ -56,6 +58,8 @@ class RoadTile:
             return self.occupant == None
         if self.occupant:
             return False
+        if self.type == "ILO":
+            return self.intersection.lights[self.intersection.state] in ["g", "y"]
         return self.intersection.ixnOpen()
 
     def isValid(self):
@@ -110,6 +114,57 @@ class Intersection:
 
     def getX(self):
         return self.i
+
+    def __str__(self):
+        return self.lights[self.state]
+
+class Spawn:
+    def __init__(self, road=None, coords=0, lights=["G","Y","R"], times=[10, 5, 10], beta=200):
+        self.road = road
+        self.coords = coords
+        self.lights = lights
+        self.times = times
+        self.max_state = len(lights)
+        self.state = 0
+        self.timer = self.times[0]
+        self.tiles = []
+        self.lifespan = beta
+        self.kids = 1
+        self.beta = beta
+        self.spawnTime = np.random.exponential(self.beta)
+        self.spawnCounter = 0
+
+    def setRoad(self, road):
+        self.road = road
+
+    def update(self, dt):
+        self.spawnCounter += dt
+        self.timer -= dt
+        if (self.timer <= 0):
+            self.state = (self.state + 1) % self.max_state
+            self.timer = self.times[self.state]
+
+        if self.spawnOpen():
+            if self.tiles[0].openForMove():
+                if self.spawnCounter > self.spawnTime:
+                    self.spawnCounter -= self.spawnTime
+                    self.spawnTime = np.random.exponential(self.beta)
+                    car = vehicles.Car(self.road)
+                    car.setSpace(self.tiles[0])
+            # else:
+                # print(self.coords)
+                # print(self.tiles[0].pos)
+
+
+
+    def addTile(self, tile):
+        self.tiles.append(tile)
+
+    def spawnOpen(self):
+        return self.lights[self.state] in ["G", "g", "Y", "y"]
+
+    def getCoords(self):
+        return self.coords
 
     def __str__(self):
         return self.lights[self.state]

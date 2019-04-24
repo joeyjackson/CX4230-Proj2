@@ -3,7 +3,7 @@ import constants as c
 import tiles
 import vehicles
 
-np.random.seed(1969)
+# np.random.seed(1969)
 
 class Peachtree:
     def __init__(self):
@@ -29,14 +29,18 @@ class Peachtree:
 
         self.only_ixns = [ixn for ixn in self.ixns if ixn != None]
 
-        car = vehicles.Car(self)
-        car.setSpace(self.tiles[1,2])
+        # car = vehicles.Car(self)
+        # car.setSpace(self.tiles[1,2])
 
-        self.start_spots = []
-        for j in range(c.road_width):
-            tile = self.tiles[0,j]
-            if tile.isValid():
-                self.start_spots.append(tile)
+        self.spawns = []
+        for protospawn in c.spawns:
+            spawn = tiles.Spawn(road=self,
+                coords=protospawn["coords"],
+                lights=protospawn["lights"],
+                times=protospawn["times"],
+                beta=protospawn["beta"])
+            spawn.addTile(self.tiles[protospawn["coords"][0], protospawn["coords"][1]])
+            self.spawns.append(spawn)
 
 
     def update(self, dt):
@@ -48,12 +52,9 @@ class Peachtree:
         self.movementUpdate(dt)
 
         # new cars arrive
-        for tile in self.start_spots:
-            car = tile.getOccupant()
-            if car == None:
-                if np.random.uniform() < c.arrival_rate:
-                    car = vehicles.Car(self)
-                    car.setSpace(tile)
+        for spawn in self.spawns:
+            spawn.update(dt)
+
         return
 
     def laneChangeUpdate(self, dt):
@@ -142,3 +143,9 @@ class Peachtree:
                     s += str(tile)
             s += "\n"
         return s
+
+    def getVisRow(self):
+        row = np.empty(c.road_length)
+        for i in range(c.road_length):
+            row[i] = sum([1 if t.getOccupant() != None else 0 for t in self.tiles[i, :]])
+        return row

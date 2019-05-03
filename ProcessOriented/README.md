@@ -6,5 +6,4 @@ Dependencies:
 
 How to Run:
     1. Adjust input parameters in constants.py to configure simulation to needs
-    2. Run simulator in python with:
-        >> python simulator.py
+    2. Run simulator.py in PYTHON 3

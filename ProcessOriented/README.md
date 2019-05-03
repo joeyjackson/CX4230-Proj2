@@ -5,5 +5,5 @@ Dependencies:
 * scipy python library: used for statistics functions in empirical data analysis (Not used in simulator)
 
 How to Run:
-    1. Adjust input parameters in constants.py to configure simulation to needs
-    2. Run simulator.py in PYTHON 3
+* Adjust input parameters in constants.py to configure simulation to needs
+* Run simulator.py in PYTHON 3
